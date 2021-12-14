@@ -11,6 +11,7 @@ import io.netty.channel.ChannelOption;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.handler.timeout.WriteTimeoutHandler;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -27,6 +28,9 @@ import reactor.netty.tcp.TcpClient;
 @RequiredArgsConstructor
 public class DebitAccountOperationsImpl implements DebitAccountOperations {
 
+    @Value(value = "${service.account-mov.url}")
+    private String SERVICE_ACCOUNT_MOV_URL;
+
     @Override
     public Mono<AnyDto> debitCardPayment(String debitCard, double amount) {
 
@@ -37,7 +41,7 @@ public class DebitAccountOperationsImpl implements DebitAccountOperations {
                         .addHandlerLast(new WriteTimeoutHandler(3)));
 
         WebClient webClient = WebClient.builder()
-                .baseUrl("http://localhost:8083")
+                .baseUrl(SERVICE_ACCOUNT_MOV_URL)
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                 //.clientConnector(new ReactorClientHttpConnector(HttpClient.from(tcpClient))) // timeout
